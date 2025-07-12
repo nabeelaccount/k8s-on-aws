@@ -4,12 +4,12 @@ kind: PersistentVolumeClaim
 metadata:
   name: mongo-pvc
 spec:
-  storageClassName: mylocalstorage
+  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 5Gi
 ---
 # How do we want it implemented
 apiVersion: v1
@@ -17,11 +17,89 @@ kind: PersistentVolume
 metadata:
   name: local-storage
 spec:
-  storageClassName: mylocalstorage
+  storageClassName: local-storage
   capacity:
-    storage: 20Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/some new/directory/structure/"
+    path: "/tmp/local"
     type: DirectoryOrCreate
+
+
+########################
+# Storage for monitoring
+########################
+---
+# What do want?
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-logging-elasticsearch-logging-0
+  namespace: kube-system
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# How do we want it implemented
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-logging-elasticsearch-logging-0
+  namespace: kube-system
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/elastic"
+    type: DirectoryOrCreate
+
+
+---
+# What do want?
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-logging-elasticsearch-logging-1
+  namespace: kube-system
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# How do we want it implemented
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-logging-elasticsearch-logging-1
+  namespace: kube-system
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/elastic-2"
+    type: DirectoryOrCreate
+
+
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner # indicates that this StorageClass does not support automatic provisioning
+volumeBindingMode: Immediate
+
